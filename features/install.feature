@@ -29,3 +29,15 @@ Feature: cli/install
     And the file "puppet/modules/apt/Modulefile" should match /name *'puppetlabs-apt'/
     And the file "puppet/modules/stdlib/Modulefile" should match /name *'puppetlabs-stdlib'/
 
+  Scenario: Installing a module with a release candidate
+    Given a file named "Puppetfile" with:
+    """
+    forge "http://forge.puppetlabs.com"
+
+    mod 'puppetlabs/apache', '0.5.0.rc1'
+    """
+    When I run `librarian-puppet install`
+    Then the exit status should be 0
+    And the file "Puppetfile.lock" should contain "puppetlabs/apache (0.5.0.rc1)"
+    And the file "modules/apache/Modulefile" should match /version *'0.5.0-rc1'/
+

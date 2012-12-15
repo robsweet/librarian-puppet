@@ -29,7 +29,8 @@ module Librarian
       def initialize_normalize_args(args)
         args.map do |arg|
           arg = [arg] if self.class === arg
-          arg
+          ret = arg.gsub('-', '.')
+          ret
         end
       end
 

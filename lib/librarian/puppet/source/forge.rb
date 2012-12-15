@@ -26,7 +26,8 @@ module Librarian
           end
 
           def dependencies(version)
-            data = api_call("api/v1/releases.json?module=#{name}&version=#{version}")
+            original_version = version.to_s.gsub('.rc', '-rc')
+            data = api_call("api/v1/releases.json?module=#{name}&version=#{original_version}")
             data[name].first['dependencies']
           end
 
