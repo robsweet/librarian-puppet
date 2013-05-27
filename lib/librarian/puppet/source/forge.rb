@@ -1,6 +1,7 @@
 require 'uri'
 require 'net/http'
 require 'json'
+require 'ostruct'
 
 module Librarian
   module Puppet
@@ -95,7 +96,9 @@ module Librarian
             target = vendored?(name, version) ? vendored_path(name, version) : name
 
 
-            command = "puppet module install --target-dir '#{path}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
+            proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
+            proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
+            command = "puppet module install --http_proxy_host '#{proxy.host}' --http_proxy_port '#{proxy.port}' --target-dir '#{path}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
             output = `#{command}`
 
             # Check for bad exit code
@@ -141,7 +144,10 @@ module Librarian
           end
 
           def stream(file, &block)
-            Net::HTTP.get_response(URI.parse("#{source}#{file}")) do |res|
+            proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
+            proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
+            Net::HTTP::Proxy(proxy.host, proxy.port,
+                             proxy_user, proxy_pass).get_response(URI.parse("#{source}#{file}")) do |res|
               res.code
 
               res.read_body(&block)
@@ -152,7 +158,10 @@ module Librarian
 
           def api_call(path)
             base_url = source.to_s
-            resp = Net::HTTP.get_response(URI.parse("#{base_url}/#{path}"))
+            proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new
+            proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
+            resp = Net::HTTP::Proxy(proxy.host, proxy.port,
+                                    proxy_user, proxy_pass).get_response(URI.parse("#{base_url}/#{path}")) 
             if resp.code.to_i != 200
               nil
             else
