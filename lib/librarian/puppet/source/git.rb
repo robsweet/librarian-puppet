@@ -20,8 +20,12 @@ module Librarian
           return '0.0.1' unless modulefile?
 
           metadata  = ::Puppet::ModuleTool::Metadata.new
-          ::Puppet::ModuleTool::ModulefileReader.evaluate(metadata, modulefile)
-
+          begin
+            ::Puppet::ModuleTool::ModulefileReader.evaluate(metadata, modulefile)
+          rescue ArgumentError, SyntaxError => error
+            puts "Warning in "+modulefile+" "+error.to_s
+            return '0.0.1'
+          end
           metadata.version
         end
 
@@ -30,7 +34,12 @@ module Librarian
 
           metadata = ::Puppet::ModuleTool::Metadata.new
 
-          ::Puppet::ModuleTool::ModulefileReader.evaluate(metadata, modulefile)
+          begin
+            ::Puppet::ModuleTool::ModulefileReader.evaluate(metadata, modulefile)
+          rescue ArgumentError, SyntaxError => error
+            puts "Warning in "+modulefile+" "+error.to_s
+            return {}
+          end
 
           metadata.dependencies.inject({}) do |h, dependency|
             name = dependency.instance_variable_get(:@full_module_name)
