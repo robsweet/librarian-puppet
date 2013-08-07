@@ -22,7 +22,9 @@ module Librarian
               raise Error, "Unable to find module '#{name}' on #{source}"
             end
 
-            data['releases'].map { |r| r['version'] }.sort.reverse
+            versions = data['releases'].map { |r| r['version'] }.sort.reverse
+            versions.select { |v| ! Gem::Version.correct? v }.each { |v| debug { "Ignoring invalid version '#{v}' for module #{name}" } }
+            versions.select { |v| Gem::Version.correct? v }
           end
 
           def dependencies(version)
@@ -105,7 +107,6 @@ module Librarian
               path.unlink
               raise Error, "Error executing puppet module install:\n#{command}\nError:\n#{output}"
             end
-
           end
 
           def check_puppet_module_options
@@ -147,6 +148,10 @@ module Librarian
 
               res.read_body(&block)
             end
+          end
+
+          def debug(*args, &block)
+            environment.logger.debug(*args, &block)
           end
 
         private

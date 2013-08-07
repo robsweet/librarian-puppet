@@ -14,6 +14,7 @@ Feature: cli/install
     And the file "modules/apt/Modulefile" should match /name *'puppetlabs-apt'/
     And the file "modules/stdlib/Modulefile" should match /name *'puppetlabs-stdlib'/
 
+
   Scenario: Installing an exact version of a module
     Given a file named "Puppetfile" with:
     """
@@ -39,6 +40,18 @@ Feature: cli/install
     And the file "modules/apt/Modulefile" should match /name *'puppetlabs-apt'/
     And the file "modules/apt/Modulefile" should match /version *'1\.0\.0'/
     And the file "modules/stdlib/Modulefile" should match /name *'puppetlabs-stdlib'/
+
+  Scenario: Installing a module with invalid versions in the forge
+    Given a file named "Puppetfile" with:
+    """
+    forge "http://forge.puppetlabs.com"
+
+    mod 'puppetlabs/apache', '0.4.0'
+    """
+    When I run `librarian-puppet install`
+    Then the exit status should be 0
+    And the file "modules/apache/Modulefile" should match /name *'puppetlabs-apache'/
+    And the file "modules/apache/Modulefile" should match /version *'0\.4\.0'/
 
   Scenario: Changing the path
     Given a directory named "puppet"
