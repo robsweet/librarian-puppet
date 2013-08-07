@@ -98,13 +98,7 @@ module Librarian
             target = vendored?(name, version) ? vendored_path(name, version) : name
 
 
-<<<<<<< HEAD
             command = "puppet module install --version #{version} --target-dir '#{path}' --module_repository '#{source}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
-||||||| merged common ancestors
-            command = "puppet module install --target-dir '#{path}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
-=======
-            command = "puppet module install --version #{version} --target-dir '#{path}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
->>>>>>> maestrodev/tons-of-fixes
             output = `#{command}`
 
             # Check for bad exit code
@@ -283,18 +277,12 @@ module Librarian
         def fetch_dependencies(name, version, version_uri)
           environment.logger.debug { "      Fetching dependencies for #{name} #{version}" }
           repo(name).dependencies(version).map do |k, v|
-<<<<<<< HEAD
             v = Requirement.new(v).gem_requirement
-            Dependency.new(k, v, nil)
-||||||| merged common ancestors
-            Dependency.new(k, v, nil)
-=======
             begin
               Dependency.new(k, v, nil)
             rescue ArgumentError => e
               raise Error, "Error fetching dependency for #{name} [#{version}]: #{k} [#{v}]: #{e}"
             end
->>>>>>> maestrodev/tons-of-fixes
           end
         end
 
