@@ -8,12 +8,16 @@ module Librarian
       end
 
       def gem_requirement
-        if range_requirement?
-          [@range_match[1], @range_match[2]]
-        elsif pessimistic_requirement?
-          "~> #{@pessimistic_match[1]}"
+        if requirement
+          if range_requirement?
+            [@range_match[1], @range_match[2]]
+          elsif pessimistic_requirement?
+            "~> #{@pessimistic_match[1]}"
+          else
+            requirement
+          end
         else
-          requirement
+          '>= 0'
         end
       end
 
