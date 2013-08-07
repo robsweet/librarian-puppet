@@ -98,7 +98,13 @@ module Librarian
             target = vendored?(name, version) ? vendored_path(name, version) : name
 
 
+<<<<<<< HEAD
             command = "puppet module install --version #{version} --target-dir '#{path}' --module_repository '#{source}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
+||||||| merged common ancestors
+            command = "puppet module install --target-dir '#{path}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
+=======
+            command = "puppet module install --version #{version} --target-dir '#{path}' --modulepath '#{path}' --ignore-dependencies '#{target}'"
+>>>>>>> maestrodev/tons-of-fixes
             output = `#{command}`
 
             # Check for bad exit code
@@ -157,7 +163,7 @@ module Librarian
         private
 
           def api_call(path)
-            base_url = source.to_s
+            base_url = source.uri
             resp = Net::HTTP.get_response(URI.parse("#{base_url}/#{path}"))
             if resp.code.to_i != 200
               nil
@@ -208,6 +214,11 @@ module Librarian
           other &&
           self.class == other.class &&
           self.uri == other.uri
+        end
+        alias eql? ==
+
+        def hash
+          self.uri.hash
         end
 
         alias :eql? :==
@@ -270,9 +281,20 @@ module Librarian
         end
 
         def fetch_dependencies(name, version, version_uri)
+          environment.logger.debug { "      Fetching dependencies for #{name} #{version}" }
           repo(name).dependencies(version).map do |k, v|
+<<<<<<< HEAD
             v = Requirement.new(v).gem_requirement
             Dependency.new(k, v, nil)
+||||||| merged common ancestors
+            Dependency.new(k, v, nil)
+=======
+            begin
+              Dependency.new(k, v, nil)
+            rescue ArgumentError => e
+              raise Error, "Error fetching dependency for #{name} [#{version}]: #{k} [#{v}]: #{e}"
+            end
+>>>>>>> maestrodev/tons-of-fixes
           end
         end
 
