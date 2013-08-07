@@ -49,3 +49,18 @@ Feature: cli/install
     When I run `librarian-puppet install`
     Then the exit status should be 0
     And the file "modules/postgresql/Modulefile" should match /name *'puppetlabs-postgresql'/
+
+
+  Scenario: Installing a module with a release candidate
+    Given a file named "Puppetfile" with:
+    """
+    forge "http://forge.puppetlabs.com"
+
+    mod 'puppetlabs/apache', '0.5.0.rc1'
+    """
+    When I run `librarian-puppet install`
+    Then the exit status should be 0
+    And the file "Puppetfile.lock" should contain "puppetlabs/apache (0.5.0.rc1)"
+    And the file "modules/apache/Modulefile" should match /version *'0.5.0-rc1'/
+
+
